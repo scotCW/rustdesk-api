@@ -14,7 +14,7 @@ const HOSTS = [
   "rs-us.rustdesk.com",
 ];
 let HOST = localStorage.getItem("rendezvous-server") || HOSTS[0];
-//根据协议设置为ws或wss
+// ws:// on http pages, wss:// on https pages
 const SCHEMA=location.protocol=="https:"?"wss://":"ws://";
 
 type MsgboxCallback = (type: string, title: string, text: string) => void;
@@ -747,28 +747,32 @@ function testDelay() {
   });
 }
 
-testDelay();
+// Only probe the public servers when no self-hosted server is configured.
+if (!localStorage.getItem("custom-rendezvous-server")) {
+  testDelay();
+}
 
 function getDefaultUri(isRelay: Boolean = false): string {
   const host = localStorage.getItem("custom-rendezvous-server");
   return getrUriFromRs(host || HOST, isRelay);
 }
-/*
+
 function isHttps() {
-  return window.location.protocol === "https:"
+  return window.location.protocol === "https:";
 }
 
 function domain(uri: string) {
-    return uri.indexOf(":") > 0 ? uri.split(":")[0] : uri
-}*/
+  return uri.indexOf(":") > 0 ? uri.split(":")[0] : uri;
+}
 
 function getrUriFromRs(
   uri: string,
   isRelay: Boolean = false,
   roffset: number = 0
 ): string {
-    //v2
-  //if (isHttps()) return "wss://" + domain(uri) + "/ws/" + (isRelay ? "relay" : "id");
+  // On https pages, reach hbbs/hbbr through the TLS reverse proxy paths
+  // (wss://<host>/ws/id and wss://<host>/ws/relay) instead of TLS on the raw ports.
+  if (isHttps()) return "wss://" + domain(uri) + "/ws/" + (isRelay ? "relay" : "id");
   if (uri.indexOf(":") > 0) {
     const tmp = uri.split(":");
     const port = parseInt(tmp[1]);
