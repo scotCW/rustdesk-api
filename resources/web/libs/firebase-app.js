@@ -33,8 +33,16 @@
     SDK_VERSION: "8.10.1",
     apps: apps,
     initializeApp: initializeApp,
+    // Like the real SDK, throw when the app has not been initialized yet: the Flutter
+    // app relies on that to decide whether to call initializeApp.
     app: function (name) {
-      return initializeApp({}, name);
+      name = name || "[DEFAULT]";
+      for (var i = 0; i < apps.length; i++) {
+        if (apps[i].name === name) return apps[i];
+      }
+      var err = new Error("No Firebase App '" + name + "' has been created");
+      err.code = "app/no-app";
+      throw err;
     },
     analytics: function () {
       return analytics;
