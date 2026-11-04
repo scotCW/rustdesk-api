@@ -17,7 +17,15 @@ func WebInit(g *gin.Engine) {
 
 	if global.Config.App.WebClient == 1 {
 		g.StaticFS("/webclient", http.Dir(global.Config.Gin.ResourcesPath+"/web"))
-		g.StaticFS("/webclient2", http.Dir(global.Config.Gin.ResourcesPath+"/web2"))
+		// webclient2 was removed upstream, but the admin UI still links to
+		// /webclient2/#/<id>. Send those to the v1 web client; browsers keep the
+		// #/<id> fragment across the redirect and the client prefills that ID.
+		g.GET("/webclient2", redirectToWebClient)
+		g.GET("/webclient2/*any", redirectToWebClient)
 	}
 	g.StaticFS("/_admin", http.Dir(global.Config.Gin.ResourcesPath+"/admin"))
+}
+
+func redirectToWebClient(c *gin.Context) {
+	c.Redirect(http.StatusFound, "/webclient/")
 }
