@@ -161,6 +161,8 @@ definitions:
     type: object
   admin.PeerForm:
     properties:
+      alias:
+        type: string
       cpu:
         type: string
       group_id:
@@ -200,7 +202,7 @@ definitions:
       password:
         type: string
       password_type:
-        description: 只能是once,fixed
+        description: must be once or fixed
         enum:
         - once
         - fixed
@@ -238,7 +240,7 @@ definitions:
       avatar:
         type: string
       email:
-        description: validate:"required,email" email不强制
+        description: validate:"required,email" email is optional
         type: string
       group_id:
         type: integer
@@ -248,6 +250,8 @@ definitions:
         type: boolean
       nickname:
         description: Password string           `json:"password" validate:"required,gte=4,lte=20"`
+        type: string
+      remark:
         type: string
       status:
         allOf:
@@ -388,14 +392,14 @@ definitions:
       id:
         type: integer
       rule:
-        description: '0: 无 1: 读 2: 读写  3: 完全控制'
+        description: '0: none 1: read 2: read/write 3: full control'
         maximum: 3
         minimum: 1
         type: integer
       to_id:
         type: integer
       type:
-        description: '1: 个人 2: 群组'
+        description: '1: personal 2: group'
         maximum: 2
         minimum: 1
         type: integer
@@ -589,6 +593,7 @@ definitions:
   model.Oauth:
     properties:
       auto_register:
+        description: RedirectUrl  string `json:"redirect_url"`
         type: boolean
       client_id:
         type: string
@@ -628,6 +633,8 @@ definitions:
     type: object
   model.Peer:
     properties:
+      alias:
+        type: string
       cpu:
         type: string
       created_at:
@@ -680,8 +687,8 @@ definitions:
     - 2
     type: integer
     x-enum-comments:
-      COMMON_STATUS_DISABLED: 通用状态 禁用
-      COMMON_STATUS_ENABLE: 通用状态 启用
+      COMMON_STATUS_DISABLED: 'common status: disabled'
+      COMMON_STATUS_ENABLE: 'common status: enabled'
     x-enum-varnames:
     - COMMON_STATUS_ENABLE
     - COMMON_STATUS_DISABLED
@@ -692,8 +699,9 @@ definitions:
       collection_id:
         type: integer
       color:
-        description: color 是flutter的颜色值,从0x00000000 到 0xFFFFFFFF; 前两位表示透明度，后面6位表示颜色,
-          可以转成rgba
+        description: color is a Flutter color value from 0x00000000 to 0xFFFFFFFF;
+          the first two hex digits are alpha, the last six the color; convertible
+          to rgba
         type: integer
       created_at:
         type: string
@@ -734,6 +742,8 @@ definitions:
       is_admin:
         type: boolean
       nickname:
+        type: string
+      remark:
         type: string
       status:
         $ref: '#/definitions/model.StatusCode'
@@ -802,17 +812,17 @@ definitions:
     type: object
 info:
   contact: {}
-  description: 接口
-  title: 管理系统API
+  description: API
+  title: Admin API
   version: "1.0"
 paths:
   /admin/address_book/batchCreate:
     post:
       consumes:
       - application/json
-      description: 批量创建地址簿
+      description: Batch create address book entries
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -836,16 +846,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 批量创建地址簿
+      summary: Batch create address book entries
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book/create:
     post:
       consumes:
       - application/json
-      description: 创建地址簿
+      description: Create address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -869,16 +879,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建地址簿
+      summary: Create address book entry
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book/delete:
     post:
       consumes:
       - application/json
-      description: 地址簿删除
+      description: Delete address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -897,14 +907,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿删除
+      summary: Delete address book entry
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 地址簿详情
+      description: Address book entry details
       parameters:
       - description: ID
         in: path
@@ -929,28 +939,28 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿详情
+      summary: Address book entry details
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book/list:
     get:
       consumes:
       - application/json
-      description: 地址簿列表
+      description: Address book list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
-      - description: 是否是我的
+      - description: Only mine
         in: query
         name: is_my
         type: integer
@@ -972,16 +982,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿列表
+      summary: Address book list
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book/share:
     post:
       consumes:
       - application/json
-      description: 地址簿分享
+      description: Share address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -1000,16 +1010,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿分享
+      summary: Share address book entry
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book/update:
     post:
       consumes:
       - application/json
-      description: 地址簿编辑
+      description: Edit address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -1033,16 +1043,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿编辑
+      summary: Edit address book entry
       tags:
-      - 地址簿
+      - Address book
   /admin/address_book_collection/create:
     post:
       consumes:
       - application/json
-      description: 创建地址簿名称
+      description: Create address book
       parameters:
-      - description: 地址簿名称信息
+      - description: Address book collection
         in: body
         name: body
         required: true
@@ -1066,16 +1076,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建地址簿名称
+      summary: Create address book collection
       tags:
-      - 地址簿名称
+      - Address book collection
   /admin/address_book_collection/delete:
     post:
       consumes:
       - application/json
-      description: 地址簿名称删除
+      description: Delete address book collection
       parameters:
-      - description: 地址簿名称信息
+      - description: Address book collection
         in: body
         name: body
         required: true
@@ -1094,14 +1104,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称删除
+      summary: Delete address book collection
       tags:
-      - 地址簿名称
+      - Address book collection
   /admin/address_book_collection/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 地址簿名称详情
+      description: Address book collection details
       parameters:
       - description: ID
         in: path
@@ -1126,28 +1136,28 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称详情
+      summary: Address book collection details
       tags:
-      - 地址簿名称
+      - Address book collection
   /admin/address_book_collection/list:
     get:
       consumes:
       - application/json
-      description: 地址簿名称列表
+      description: Address book collection list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 是否是我的
+      - description: Only mine
         in: query
         name: is_my
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -1169,16 +1179,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称列表
+      summary: Address book collection list
       tags:
-      - 地址簿名称
+      - Address book collection
   /admin/address_book_collection/update:
     post:
       consumes:
       - application/json
-      description: 地址簿名称编辑
+      description: Edit address book collection
       parameters:
-      - description: 地址簿名称信息
+      - description: Address book collection
         in: body
         name: body
         required: true
@@ -1202,16 +1212,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称编辑
+      summary: Edit address book collection
       tags:
-      - 地址簿名称
+      - Address book collection
   /admin/address_book_collection_rule/create:
     post:
       consumes:
       - application/json
-      description: 创建地址簿规则
+      description: Create address book rule
       parameters:
-      - description: 地址簿规则信息
+      - description: Address book rule
         in: body
         name: body
         required: true
@@ -1235,16 +1245,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建地址簿规则
+      summary: Create address book rule
       tags:
-      - 地址簿规则
+      - Address book rule
   /admin/address_book_collection_rule/delete:
     post:
       consumes:
       - application/json
-      description: 地址簿规则删除
+      description: Delete address book rule
       parameters:
-      - description: 地址簿规则信息
+      - description: Address book rule
         in: body
         name: body
         required: true
@@ -1263,14 +1273,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则删除
+      summary: Delete address book rule
       tags:
-      - 地址簿规则
+      - Address book rule
   /admin/address_book_collection_rule/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 地址簿规则详情
+      description: Address book rule details
       parameters:
       - description: ID
         in: path
@@ -1295,32 +1305,32 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则详情
+      summary: Address book rule details
       tags:
-      - 地址簿规则
+      - Address book rule
   /admin/address_book_collection_rule/list:
     get:
       consumes:
       - application/json
-      description: 地址簿规则列表
+      description: Address book rule list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 是否是我的
+      - description: Only mine
         in: query
         name: is_my
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
-      - description: 地址簿集合id
+      - description: Address book collection ID
         in: query
         name: collection_id
         type: integer
@@ -1342,16 +1352,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则列表
+      summary: Address book rule list
       tags:
-      - 地址簿规则
+      - Address book rule
   /admin/address_book_collection_rule/update:
     post:
       consumes:
       - application/json
-      description: 地址簿规则编辑
+      description: Edit address book rule
       parameters:
-      - description: 地址簿规则信息
+      - description: Address book rule
         in: body
         name: body
         required: true
@@ -1375,16 +1385,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则编辑
+      summary: Edit address book rule
       tags:
-      - 地址簿规则
+      - Address book rule
   /admin/audit_conn/batchDelete:
     post:
       consumes:
       - application/json
-      description: 链接日志批量删除
+      description: Batch delete connection logs
       parameters:
-      - description: 链接日志
+      - description: Connection log IDs
         in: body
         name: body
         required: true
@@ -1403,16 +1413,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 链接日志批量删除
+      summary: Batch delete connection logs
       tags:
-      - 链接日志
+      - Connection log
   /admin/audit_conn/delete:
     post:
       consumes:
       - application/json
-      description: 链接日志删除
+      description: Delete connection log
       parameters:
-      - description: 链接日志信息
+      - description: Connection log
         in: body
         name: body
         required: true
@@ -1431,28 +1441,28 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 链接日志删除
+      summary: Delete connection log
       tags:
-      - 链接日志
+      - Connection log
   /admin/audit_conn/list:
     get:
       consumes:
       - application/json
-      description: 链接日志列表
+      description: Connection log list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 目标设备
+      - description: Target device
         in: query
         name: peer_id
         type: integer
-      - description: 来源设备
+      - description: Source device
         in: query
         name: from_peer
         type: integer
@@ -1474,16 +1484,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 链接日志列表
+      summary: Connection log list
       tags:
-      - 链接日志
+      - Connection log
   /admin/audit_file/batchDelete:
     post:
       consumes:
       - application/json
-      description: 文件日志批量删除
+      description: Batch delete file logs
       parameters:
-      - description: 文件日志
+      - description: File log IDs
         in: body
         name: body
         required: true
@@ -1502,16 +1512,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 文件日志批量删除
+      summary: Batch delete file logs
       tags:
-      - 文件日志
+      - File log
   /admin/audit_file/delete:
     post:
       consumes:
       - application/json
-      description: 文件日志删除
+      description: Delete file log
       parameters:
-      - description: 文件日志信息
+      - description: File log
         in: body
         name: body
         required: true
@@ -1530,28 +1540,28 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 文件日志删除
+      summary: Delete file log
       tags:
-      - 文件日志
+      - File log
   /admin/audit_file/list:
     get:
       consumes:
       - application/json
-      description: 文件日志列表
+      description: File log list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 目标设备
+      - description: Target device
         in: query
         name: peer_id
         type: integer
-      - description: 来源设备
+      - description: Source device
         in: query
         name: from_peer
         type: integer
@@ -1573,14 +1583,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 文件日志列表
+      summary: File log list
       tags:
-      - 文件日志
+      - File log
   /admin/config/admin:
     get:
       consumes:
       - application/json
-      description: ADMIN服务配置
+      description: Admin service configuration
       produces:
       - application/json
       responses:
@@ -1594,14 +1604,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: ADMIN服务配置
+      summary: Admin service configuration
       tags:
       - ADMIN
   /admin/config/app:
     get:
       consumes:
       - application/json
-      description: APP服务配置
+      description: App service configuration
       produces:
       - application/json
       responses:
@@ -1615,14 +1625,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: APP服务配置
+      summary: App service configuration
       tags:
       - ADMIN
   /admin/config/server:
     get:
       consumes:
       - application/json
-      description: 服务配置,给webclient提供api-server
+      description: Service configuration; provides api-server to the web client
       produces:
       - application/json
       responses:
@@ -1636,16 +1646,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: RUSTDESK服务配置
+      summary: RustDesk service configuration
       tags:
       - ADMIN
   /admin/device_group/create:
     post:
       consumes:
       - application/json
-      description: 创建设备群组
+      description: Create device group
       parameters:
-      - description: 设备群组信息
+      - description: Device group
         in: body
         name: body
         required: true
@@ -1669,16 +1679,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建设备群组
+      summary: Create device group
       tags:
-      - 设备群组
+      - Device group
   /admin/device_group/delete:
     post:
       consumes:
       - application/json
-      description: 设备群组删除
+      description: Delete device group
       parameters:
-      - description: 群组信息
+      - description: Device group
         in: body
         name: body
         required: true
@@ -1697,14 +1707,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备群组删除
+      summary: Delete device group
       tags:
-      - 设备群组
+      - Device group
   /admin/device_group/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 设备群组详情
+      description: Device group details
       parameters:
       - description: ID
         in: path
@@ -1729,20 +1739,20 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备群组详情
+      summary: Device group details
       tags:
-      - 设备群组
+      - Device group
   /admin/device_group/list:
     get:
       consumes:
       - application/json
-      description: 群组列表
+      description: Group list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
@@ -1764,16 +1774,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 群组列表
+      summary: Group list
       tags:
-      - 群组
+      - Group
   /admin/device_group/update:
     post:
       consumes:
       - application/json
-      description: 设备群组编辑
+      description: Edit device group
       parameters:
-      - description: 群组信息
+      - description: Device group
         in: body
         name: body
         required: true
@@ -1797,14 +1807,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备群组编辑
+      summary: Edit device group
       tags:
-      - 设备群组
+      - Device group
   /admin/file/oss_token:
     get:
       consumes:
       - application/json
-      description: 获取ossToken
+      description: Get OSS token
       produces:
       - application/json
       responses:
@@ -1818,16 +1828,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 获取ossToken
+      summary: Get OSS token
       tags:
-      - 文件
+      - File
   /admin/file/upload:
     post:
       consumes:
       - multipart/form-data
-      description: 上传文件到本地
+      description: Upload a file to local storage
       parameters:
-      - description: 上传文件示例
+      - description: File to upload
         in: formData
         name: file
         required: true
@@ -1845,16 +1855,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 上传文件到本地
+      summary: Upload a file to local storage
       tags:
-      - 文件
+      - File
   /admin/group/create:
     post:
       consumes:
       - application/json
-      description: 创建群组
+      description: Create group
       parameters:
-      - description: 群组信息
+      - description: Group
         in: body
         name: body
         required: true
@@ -1878,16 +1888,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建群组
+      summary: Create group
       tags:
-      - 群组
+      - Group
   /admin/group/delete:
     post:
       consumes:
       - application/json
-      description: 群组删除
+      description: Delete group
       parameters:
-      - description: 群组信息
+      - description: Group
         in: body
         name: body
         required: true
@@ -1906,14 +1916,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 群组删除
+      summary: Delete group
       tags:
-      - 群组
+      - Group
   /admin/group/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 群组详情
+      description: Group details
       parameters:
       - description: ID
         in: path
@@ -1938,20 +1948,20 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 群组详情
+      summary: Group details
       tags:
-      - 群组
+      - Group
   /admin/group/list:
     get:
       consumes:
       - application/json
-      description: 群组列表
+      description: Group list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
@@ -1973,16 +1983,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 群组列表
+      summary: Group list
       tags:
-      - 群组
+      - Group
   /admin/group/update:
     post:
       consumes:
       - application/json
-      description: 群组编辑
+      description: Edit group
       parameters:
-      - description: 群组信息
+      - description: Group
         in: body
         name: body
         required: true
@@ -2006,16 +2016,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 群组编辑
+      summary: Edit group
       tags:
-      - 群组
+      - Group
   /admin/login:
     post:
       consumes:
       - application/json
-      description: 登录
+      description: Log in
       parameters:
-      - description: 登录信息
+      - description: Login credentials
         in: body
         name: body
         required: true
@@ -2039,14 +2049,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录
+      summary: Log in
       tags:
-      - 登录
+      - Login
   /admin/login-options:
     post:
       consumes:
       - application/json
-      description: 登录选项
+      description: Login options
       produces:
       - application/json
       responses:
@@ -2060,16 +2070,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: 登录选项
+      summary: Login options
       tags:
-      - 登录
+      - Login
   /admin/login_log/batchDelete:
     post:
       consumes:
       - application/json
-      description: 登录日志批量删除
+      description: Batch delete login logs
       parameters:
-      - description: 登录日志
+      - description: Login log IDs
         in: body
         name: body
         required: true
@@ -2088,16 +2098,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志批量删除
+      summary: Batch delete login logs
       tags:
-      - 登录日志
+      - Login log
   /admin/login_log/delete:
     post:
       consumes:
       - application/json
-      description: 登录日志删除
+      description: Delete login log
       parameters:
-      - description: 登录日志信息
+      - description: Login log
         in: body
         name: body
         required: true
@@ -2116,14 +2126,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志删除
+      summary: Delete login log
       tags:
-      - 登录日志
+      - Login log
   /admin/login_log/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 登录日志详情
+      description: Login log details
       parameters:
       - description: ID
         in: path
@@ -2148,24 +2158,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志详情
+      summary: Login log details
       tags:
-      - 登录日志
+      - Login log
   /admin/login_log/list:
     get:
       consumes:
       - application/json
-      description: 登录日志列表
+      description: Login log list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 用户ID
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -2187,14 +2197,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志列表
+      summary: Login log list
       tags:
-      - 登录日志
+      - Login log
   /admin/logout:
     post:
       consumes:
       - application/json
-      description: 登出
+      description: Log out
       produces:
       - application/json
       responses:
@@ -2206,16 +2216,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: 登出
+      summary: Log out
       tags:
-      - 登录
+      - Login
   /admin/my/address_book/create:
     post:
       consumes:
       - application/json
-      description: 创建地址簿
+      description: Create address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -2239,16 +2249,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建地址簿
+      summary: Create address book entry
       tags:
-      - 我的地址簿
+      - My address book
   /admin/my/address_book/delete:
     post:
       consumes:
       - application/json
-      description: 地址簿删除
+      description: Delete address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -2267,24 +2277,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿删除
+      summary: Delete address book entry
       tags:
-      - 我的地址簿
+      - My address book
   /admin/my/address_book/list:
     get:
       consumes:
       - application/json
-      description: 地址簿列表
+      description: Address book list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -2306,16 +2316,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿列表
+      summary: Address book list
       tags:
-      - 我的地址簿
+      - My address book
   /admin/my/address_book/update:
     post:
       consumes:
       - application/json
-      description: 地址簿编辑
+      description: Edit address book entry
       parameters:
-      - description: 地址簿信息
+      - description: Address book entry
         in: body
         name: body
         required: true
@@ -2339,16 +2349,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿编辑
+      summary: Edit address book entry
       tags:
-      - 我的地址簿
+      - My address book
   /admin/my/address_book_collection/create:
     post:
       consumes:
       - application/json
-      description: 创建地址簿名称
+      description: Create address book
       parameters:
-      - description: 地址簿名称信息
+      - description: Address book collection
         in: body
         name: body
         required: true
@@ -2372,16 +2382,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建地址簿名称
+      summary: Create address book collection
       tags:
-      - 我的地址簿名称
+      - My address book collection
   /admin/my/address_book_collection/delete:
     post:
       consumes:
       - application/json
-      description: 地址簿名称删除
+      description: Delete address book collection
       parameters:
-      - description: 地址簿名称信息
+      - description: Address book collection
         in: body
         name: body
         required: true
@@ -2400,20 +2410,20 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称删除
+      summary: Delete address book collection
       tags:
-      - 我的地址簿名称
+      - My address book collection
   /admin/my/address_book_collection/list:
     get:
       consumes:
       - application/json
-      description: 地址簿名称列表
+      description: Address book collection list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
@@ -2435,16 +2445,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称列表
+      summary: Address book collection list
       tags:
-      - 我的地址簿名称
+      - My address book collection
   /admin/my/address_book_collection/update:
     post:
       consumes:
       - application/json
-      description: 地址簿名称编辑
+      description: Edit address book collection
       parameters:
-      - description: 地址簿名称信息
+      - description: Address book collection
         in: body
         name: body
         required: true
@@ -2468,16 +2478,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿名称编辑
+      summary: Edit address book collection
       tags:
-      - 我的地址簿名称
+      - My address book collection
   /admin/my/address_book_collection_rule/create:
     post:
       consumes:
       - application/json
-      description: 创建地址簿规则
+      description: Create address book rule
       parameters:
-      - description: 地址簿规则信息
+      - description: Address book rule
         in: body
         name: body
         required: true
@@ -2501,16 +2511,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建地址簿规则
+      summary: Create address book rule
       tags:
-      - 我的地址簿规则
+      - My address book rule
   /admin/my/address_book_collection_rule/delete:
     post:
       consumes:
       - application/json
-      description: 地址簿规则删除
+      description: Delete address book rule
       parameters:
-      - description: 地址簿规则信息
+      - description: Address book rule
         in: body
         name: body
         required: true
@@ -2529,32 +2539,32 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则删除
+      summary: Delete address book rule
       tags:
-      - 我的地址簿规则
+      - My address book rule
   /admin/my/address_book_collection_rule/list:
     get:
       consumes:
       - application/json
-      description: 地址簿规则列表
+      description: Address book rule list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 是否是我的
+      - description: Only mine
         in: query
         name: is_my
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
-      - description: 地址簿集合id
+      - description: Address book collection ID
         in: query
         name: collection_id
         type: integer
@@ -2576,16 +2586,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则列表
+      summary: Address book rule list
       tags:
-      - 我的地址簿规则
+      - My address book rule
   /admin/my/address_book_collection_rule/update:
     post:
       consumes:
       - application/json
-      description: 地址簿规则编辑
+      description: Edit address book rule
       parameters:
-      - description: 地址簿规则信息
+      - description: Address book rule
         in: body
         name: body
         required: true
@@ -2609,16 +2619,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 地址簿规则编辑
+      summary: Edit address book rule
       tags:
-      - 我的地址簿规则
+      - My address book rule
   /admin/my/login_log/batchDelete:
     post:
       consumes:
       - application/json
-      description: 登录日志批量删除
+      description: Batch delete login logs
       parameters:
-      - description: 登录日志
+      - description: Login log IDs
         in: body
         name: body
         required: true
@@ -2637,16 +2647,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志批量删除
+      summary: Batch delete login logs
       tags:
-      - 我的登录日志
+      - My login logs
   /admin/my/login_log/delete:
     post:
       consumes:
       - application/json
-      description: 登录日志删除
+      description: Delete login log
       parameters:
-      - description: 登录日志信息
+      - description: Login log
         in: body
         name: body
         required: true
@@ -2665,24 +2675,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志删除
+      summary: Delete login log
       tags:
-      - 我的登录日志
+      - My login logs
   /admin/my/login_log/list:
     get:
       consumes:
       - application/json
-      description: 登录日志列表
+      description: Login log list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 用户ID
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -2704,24 +2714,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录日志列表
+      summary: Login log list
       tags:
-      - 我的登录日志
+      - My login logs
   /admin/my/peer/list:
     get:
       consumes:
       - application/json
-      description: 设备列表
+      description: Device list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 时间
+      - description: Time range
         in: query
         name: time_ago
         type: integer
@@ -2729,11 +2739,11 @@ paths:
         in: query
         name: id
         type: string
-      - description: 主机名
+      - description: Hostname
         in: query
         name: hostname
         type: string
-      - description: uuids 用逗号分隔
+      - description: Comma-separated UUIDs
         in: query
         name: uuids
         type: string
@@ -2755,14 +2765,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备列表
+      summary: Device list
       tags:
-      - 我的设备
+      - My devices
   /admin/my/share_record/batchDelete:
     post:
       consumes:
       - application/json
-      description: 批量删除我的分享记录
+      description: Batch delete my share records
       parameters:
       - description: id
         in: body
@@ -2783,16 +2793,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 批量删除我的分享记录
+      summary: Batch delete my share records
       tags:
-      - 我的
+      - Mine
   /admin/my/share_record/delete:
     post:
       consumes:
       - application/json
-      description: 分享记录删除
+      description: Delete share record
       parameters:
-      - description: 分享记录信息
+      - description: Share record
         in: body
         name: body
         required: true
@@ -2811,20 +2821,20 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 分享记录删除
+      summary: Delete share record
       tags:
-      - 我的分享记录
+      - My share records
   /admin/my/share_record/list:
     get:
       consumes:
       - application/json
-      description: 分享记录列表
+      description: Share record list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
@@ -2841,16 +2851,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 分享记录列表
+      summary: Share record list
       tags:
-      - 我的分享记录
+      - My share records
   /admin/my/tag/create:
     post:
       consumes:
       - application/json
-      description: 创建标签
+      description: Create tag
       parameters:
-      - description: 标签信息
+      - description: Tag
         in: body
         name: body
         required: true
@@ -2874,16 +2884,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建标签
+      summary: Create tag
       tags:
-      - 我的标签
+      - My tags
   /admin/my/tag/delete:
     post:
       consumes:
       - application/json
-      description: 标签删除
+      description: Delete tag
       parameters:
-      - description: 标签信息
+      - description: Tag
         in: body
         name: body
         required: true
@@ -2902,28 +2912,28 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签删除
+      summary: Delete tag
       tags:
-      - 标签
+      - Tag
   /admin/my/tag/list:
     get:
       consumes:
       - application/json
-      description: 标签列表
+      description: Tag list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 是否是我的
+      - description: Only mine
         in: query
         name: is_my
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -2945,16 +2955,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签列表
+      summary: Tag list
       tags:
-      - 我的标签
+      - My tags
   /admin/my/tag/update:
     post:
       consumes:
       - application/json
-      description: 标签编辑
+      description: Edit tag
       parameters:
-      - description: 标签信息
+      - description: Tag
         in: body
         name: body
         required: true
@@ -2978,16 +2988,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签编辑
+      summary: Edit tag
       tags:
-      - 我的标签
+      - My tags
   /admin/oauth/create:
     post:
       consumes:
       - application/json
-      description: 创建Oauth
+      description: Create OAuth
       parameters:
-      - description: Oauth信息
+      - description: OAuth provider
         in: body
         name: body
         required: true
@@ -3011,16 +3021,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建Oauth
+      summary: Create OAuth
       tags:
       - Oauth
   /admin/oauth/delete:
     post:
       consumes:
       - application/json
-      description: Oauth删除
+      description: Delete OAuth
       parameters:
-      - description: Oauth信息
+      - description: OAuth provider
         in: body
         name: body
         required: true
@@ -3039,14 +3049,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: Oauth删除
+      summary: Delete OAuth
       tags:
       - Oauth
   /admin/oauth/detail/{id}:
     get:
       consumes:
       - application/json
-      description: Oauth详情
+      description: OAuth details
       parameters:
       - description: ID
         in: path
@@ -3071,20 +3081,20 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: Oauth详情
+      summary: OAuth details
       tags:
       - Oauth
   /admin/oauth/list:
     get:
       consumes:
       - application/json
-      description: Oauth列表
+      description: OAuth list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
@@ -3106,16 +3116,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: Oauth列表
+      summary: OAuth list
       tags:
       - Oauth
   /admin/oauth/update:
     post:
       consumes:
       - application/json
-      description: Oauth编辑
+      description: Edit OAuth
       parameters:
-      - description: Oauth信息
+      - description: OAuth provider
         in: body
         name: body
         required: true
@@ -3139,7 +3149,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: Oauth编辑
+      summary: Edit OAuth
       tags:
       - Oauth
   /admin/oidc/auth:
@@ -3181,9 +3191,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: 批量设备删除
+      description: Batch delete devices
       parameters:
-      - description: 设备id
+      - description: Device IDs
         in: body
         name: body
         required: true
@@ -3202,16 +3212,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 批量设备删除
+      summary: Batch delete devices
       tags:
-      - 设备
+      - Device
   /admin/peer/create:
     post:
       consumes:
       - application/json
-      description: 创建设备
+      description: Create device
       parameters:
-      - description: 设备信息
+      - description: Device
         in: body
         name: body
         required: true
@@ -3235,16 +3245,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建设备
+      summary: Create device
       tags:
-      - 设备
+      - Device
   /admin/peer/delete:
     post:
       consumes:
       - application/json
-      description: 设备删除
+      description: Delete device
       parameters:
-      - description: 设备信息
+      - description: Device
         in: body
         name: body
         required: true
@@ -3263,14 +3273,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备删除
+      summary: Delete device
       tags:
-      - 设备
+      - Device
   /admin/peer/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 设备详情
+      description: Device details
       parameters:
       - description: ID
         in: path
@@ -3295,24 +3305,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备详情
+      summary: Device details
       tags:
-      - 设备
+      - Device
   /admin/peer/list:
     get:
       consumes:
       - application/json
-      description: 设备列表
+      description: Device list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 时间
+      - description: Time range
         in: query
         name: time_ago
         type: integer
@@ -3320,11 +3330,11 @@ paths:
         in: query
         name: id
         type: string
-      - description: 主机名
+      - description: Hostname
         in: query
         name: hostname
         type: string
-      - description: uuids 用逗号分隔
+      - description: Comma-separated UUIDs
         in: query
         name: uuids
         type: string
@@ -3346,16 +3356,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备列表
+      summary: Device list
       tags:
-      - 设备
+      - Device
   /admin/peer/update:
     post:
       consumes:
       - application/json
-      description: 设备编辑
+      description: Edit device
       parameters:
-      - description: 设备信息
+      - description: Device
         in: body
         name: body
         required: true
@@ -3379,14 +3389,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 设备编辑
+      summary: Edit device
       tags:
-      - 设备
+      - Device
   /admin/share_record/batchDelete:
     post:
       consumes:
       - application/json
-      description: 批量分享记录
+      description: Batch delete share records
       parameters:
       - description: id
         in: body
@@ -3407,16 +3417,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 批量分享记录
+      summary: Batch delete share records
       tags:
-      - 分享记录
+      - Share records
   /admin/share_record/delete:
     post:
       consumes:
       - application/json
-      description: 分享记录删除
+      description: Delete share record
       parameters:
-      - description: 分享记录信息
+      - description: Share record
         in: body
         name: body
         required: true
@@ -3435,24 +3445,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 分享记录删除
+      summary: Delete share record
       tags:
-      - 分享记录
+      - Share records
   /admin/share_record/list:
     get:
       consumes:
       - application/json
-      description: 分享记录列表
+      description: Share record list
       parameters:
-      - description: 用户ID
+      - description: User ID
         in: query
         name: user_id
         type: integer
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
@@ -3469,16 +3479,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 分享记录列表
+      summary: Share record list
       tags:
-      - 分享记录
+      - Share records
   /admin/tag/create:
     post:
       consumes:
       - application/json
-      description: 创建标签
+      description: Create tag
       parameters:
-      - description: 标签信息
+      - description: Tag
         in: body
         name: body
         required: true
@@ -3502,16 +3512,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建标签
+      summary: Create tag
       tags:
-      - 标签
+      - Tag
   /admin/tag/delete:
     post:
       consumes:
       - application/json
-      description: 标签删除
+      description: Delete tag
       parameters:
-      - description: 标签信息
+      - description: Tag
         in: body
         name: body
         required: true
@@ -3530,14 +3540,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签删除
+      summary: Delete tag
       tags:
-      - 标签
+      - Tag
   /admin/tag/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 标签详情
+      description: Tag details
       parameters:
       - description: ID
         in: path
@@ -3562,28 +3572,28 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签详情
+      summary: Tag details
       tags:
-      - 标签
+      - Tag
   /admin/tag/list:
     get:
       consumes:
       - application/json
-      description: 标签列表
+      description: Tag list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 是否是我的
+      - description: Only mine
         in: query
         name: is_my
         type: integer
-      - description: 用户id
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -3605,16 +3615,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签列表
+      summary: Tag list
       tags:
-      - 标签
+      - Tag
   /admin/tag/update:
     post:
       consumes:
       - application/json
-      description: 标签编辑
+      description: Edit tag
       parameters:
-      - description: 标签信息
+      - description: Tag
         in: body
         name: body
         required: true
@@ -3638,16 +3648,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 标签编辑
+      summary: Edit tag
       tags:
-      - 标签
+      - Tag
   /admin/user/changeCurPwd:
     post:
       consumes:
       - application/json
-      description: 修改当前用户密码
+      description: Change the current user's password
       parameters:
-      - description: 用户信息
+      - description: Password change
         in: body
         name: body
         required: true
@@ -3666,16 +3676,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 修改当前用户密码
+      summary: Change the current user's password
       tags:
-      - 用户
+      - User
   /admin/user/create:
     post:
       consumes:
       - application/json
-      description: 创建管理员
+      description: Create user
       parameters:
-      - description: 管理员信息
+      - description: User
         in: body
         name: body
         required: true
@@ -3699,14 +3709,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 创建管理员
+      summary: Create user
       tags:
-      - 用户
+      - User
   /admin/user/current:
     get:
       consumes:
       - application/json
-      description: 当前用户
+      description: Current user
       produces:
       - application/json
       responses:
@@ -3725,16 +3735,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 当前用户
+      summary: Current user
       tags:
-      - 用户
+      - User
   /admin/user/delete:
     post:
       consumes:
       - application/json
-      description: 管理员编删除
+      description: Delete user
       parameters:
-      - description: 用户信息
+      - description: User
         in: body
         name: body
         required: true
@@ -3753,14 +3763,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 管理员删除
+      summary: Delete user
       tags:
-      - 用户
+      - User
   /admin/user/detail/{id}:
     get:
       consumes:
       - application/json
-      description: 管理员详情
+      description: User details
       parameters:
       - description: ID
         in: path
@@ -3785,24 +3795,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 管理员详情
+      summary: User details
       tags:
-      - 用户
+      - User
   /admin/user/list:
     get:
       consumes:
       - application/json
-      description: 管理员列表
+      description: User list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 账户
+      - description: Username
         in: query
         name: username
         type: integer
@@ -3824,14 +3834,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 管理员列表
+      summary: User list
       tags:
-      - 用户
+      - User
   /admin/user/myOauth:
     get:
       consumes:
       - application/json
-      description: 我的授权
+      description: My OAuth bindings
       produces:
       - application/json
       responses:
@@ -3852,16 +3862,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 我的授权
+      summary: My OAuth bindings
       tags:
-      - 用户
+      - User
   /admin/user/update:
     post:
       consumes:
       - application/json
-      description: 管理员编辑
+      description: Edit user
       parameters:
-      - description: 用户信息
+      - description: User
         in: body
         name: body
         required: true
@@ -3885,16 +3895,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 管理员编辑
+      summary: Edit user
       tags:
-      - 用户
+      - User
   /admin/user/updatePassword:
     post:
       consumes:
       - application/json
-      description: 修改密码
+      description: Change password
       parameters:
-      - description: 用户信息
+      - description: User password
         in: body
         name: body
         required: true
@@ -3913,16 +3923,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 修改密码
+      summary: Change password
       tags:
-      - 用户
+      - User
   /admin/user_token/batchDelete:
     post:
       consumes:
       - application/json
-      description: 登录凭证批量删除
+      description: Batch delete login tokens
       parameters:
-      - description: 登录凭证信息
+      - description: Login token IDs
         in: body
         name: body
         required: true
@@ -3941,16 +3951,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录凭证批量删除
+      summary: Batch delete login tokens
       tags:
-      - 登录凭证
+      - Login token
   /admin/user_token/delete:
     post:
       consumes:
       - application/json
-      description: 登录凭证删除
+      description: Delete login token
       parameters:
-      - description: 登录凭证信息
+      - description: Login token
         in: body
         name: body
         required: true
@@ -3969,24 +3979,24 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录凭证删除
+      summary: Delete login token
       tags:
-      - 登录凭证
+      - Login token
   /admin/user_token/list:
     get:
       consumes:
       - application/json
-      description: 登录凭证列表
+      description: Login token list
       parameters:
-      - description: 页码
+      - description: Page number
         in: query
         name: page
         type: integer
-      - description: 页大小
+      - description: Page size
         in: query
         name: page_size
         type: integer
-      - description: 用户ID
+      - description: User ID
         in: query
         name: user_id
         type: integer
@@ -4008,9 +4018,9 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - token: []
-      summary: 登录凭证列表
+      summary: Login token list
       tags:
-      - 登录凭证
+      - Login token
 securityDefinitions:
   BearerAuth:
     in: header

@@ -14,12 +14,12 @@ type Audit struct {
 }
 
 // AuditConn
-// @Tags 审计
-// @Summary 审计连接
-// @Description 审计连接
+// @Tags Audit
+// @Summary Audit connection
+// @Description Audit connection
 // @Accept  json
 // @Produce  json
-// @Param body body request.AuditConnForm true "审计连接"
+// @Param body body request.AuditConnForm true "Connection audit"
 // @Success 200 {string} string ""
 // @Failure 500 {object} response.Response
 // @Router /audit/conn [post]
@@ -59,12 +59,12 @@ func (a *Audit) AuditConn(c *gin.Context) {
 }
 
 // AuditFile
-// @Tags 审计
-// @Summary 审计文件
-// @Description 审计文件
+// @Tags Audit
+// @Summary Audit file transfer
+// @Description Audit file transfer
 // @Accept  json
 // @Produce  json
-// @Param body body request.AuditFileForm true "审计文件"
+// @Param body body request.AuditFileForm true "File transfer audit"
 // @Success 200 {string} string ""
 // @Failure 500 {object} response.Response
 // @Router /audit/file [post]

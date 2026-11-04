@@ -53,7 +53,7 @@ description = "Config not found."
 one = "구성이 존재하지 않습니다."
 other = "구성이 존재하지 않습니다."
 
-#授权过期
+# authorization expired
 [OauthExpired]
 description = "Oauth expired."
 one = "인증이 만료되었습니다. 다시 승인해 주세요."
