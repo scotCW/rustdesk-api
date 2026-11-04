@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,6 +48,9 @@
             background-color: #ba363a;
             color: white;
             text-decoration: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
             border-radius: 5px;
             transition: background-color 0.3s;
         }
@@ -55,14 +58,16 @@
         .return-link:hover {
             background-color: #ba363a;
         }
+        [hidden] {
+            display: none !important;
+        }
     </style>
     <link rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/6.0.0/css/all.min.css">
     <script>
-        var lang = navigator.language || navigator.userLanguage || 'zh-CN';
-        var title = 'OauthFailed'
-        var msg = '{{.message}}'
-        var btn = 'Close'
-        document.writeln('<script src="/api/oidc/msg?lang=' + lang + '&msg=' + msg + '&title=OauthFailed"><\/script>');
+        var lang = navigator.language || navigator.userLanguage || 'en';
+        var title = 'OauthFailed';
+        var msg = '{{.message}}';
+        document.writeln('<script src="/api/oidc/msg?lang=' + encodeURIComponent(lang) + '&msg=' + encodeURIComponent(msg) + '&title=OauthFailed"><\/script>');
     </script>
 </head>
 <body>
@@ -70,12 +75,31 @@
     <i class="fas fa-triangle-exclamation checkmark"></i>
     <h1 id="h1"></h1>
     <p id="msg"></p>
-    <a href="javascript:window.close()" class="return-link" id="btn">Close</a>
+    <button type="button" class="return-link" id="btn">Close</button>
+    <p id="close-hint" hidden>You can close this tab and return to RustDesk.</p>
 </div>
+
 <script>
     document.title = title + ' - RustDesk API';
     document.getElementById('h1').innerText = title;
-    document.getElementById('msg').innerText = msg;
+    var msgEl = document.getElementById('msg');
+    if (msg && msg !== title) {
+        msgEl.innerText = msg;
+    } else {
+        msgEl.hidden = true;
+    }
+    // Browsers only let scripts close tabs that scripts opened. The RustDesk client opens
+    // this page in the normal browser, so window.close() is usually ignored: tell the user
+    // to close the tab instead of leaving a button that does nothing.
+    document.getElementById('btn').addEventListener('click', function () {
+        window.close();
+        setTimeout(function () {
+            if (!window.closed) {
+                document.getElementById('btn').hidden = true;
+                document.getElementById('close-hint').hidden = false;
+            }
+        }, 300);
+    });
 </script>
 </body>
 </html>

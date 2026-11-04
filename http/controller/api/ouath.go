@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -286,7 +287,7 @@ func (o *Oauth) Message(c *gin.Context) {
 			ID: mp.Title,
 		})
 		if err == nil {
-			res = utils.StringConcat(";title='", title, "';")
+			res = utils.StringConcat(";title=", jsString(title), ";")
 		}
 
 	}
@@ -295,11 +296,17 @@ func (o *Oauth) Message(c *gin.Context) {
 			ID: mp.Msg,
 		})
 		if err == nil {
-			res = utils.StringConcat(res, "msg = '", msg, "';")
+			res = utils.StringConcat(res, "msg = ", jsString(msg), ";")
 		}
 	}
 
 	//return the JS content
 	c.Header("Content-Type", "application/javascript")
 	c.String(http.StatusOK, res)
+}
+
+// jsString encodes s as a JavaScript string literal for the generated script.
+func jsString(s string) string {
+	b, _ := json.Marshal(s)
+	return string(b)
 }
