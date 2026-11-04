@@ -17,7 +17,7 @@ env:
   IMAGE: ghcr.io/scotcw/rustdesk-api
   # Admin front-end (scotCW fork, branch scotcw/maintenance), pinned for reproducible builds.
   WEB_REPO: scotCW/rustdesk-api-web
-  WEB_REF: ec2b5813993b2322c80e0acebadd6982a6534191
+  WEB_REF: 80817152c78914ef7819a94220d7671d69ccfe90
   # Web client served at /webclient/ (Unlicense), pinned the same way.
   WEBCLIENT_REPO: scotCW/webclient-v3
   WEBCLIENT_REF: 388a1e740d3335feee0789e07798a5c98d67c975
