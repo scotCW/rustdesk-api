@@ -103,8 +103,9 @@ func (i *WebClient) ServerConfigV2(c *gin.Context) {
 	response.Success(
 		c,
 		gin.H{
-			"id_server": global.Config.Rustdesk.IdServer,
-			"key":       global.Config.Rustdesk.Key,
+			"id_server":    global.Config.Rustdesk.IdServer,
+			"relay_server": global.Config.Rustdesk.RelayServer,
+			"key":          global.Config.Rustdesk.Key,
 		},
 	)
 }

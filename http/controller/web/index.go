@@ -21,27 +21,13 @@ func jsString(s string) string {
 	return string(b)
 }
 
-// ConfigJs serves the web client's bootstrap config. Besides the API server it presets the
-// self-hosted ID server and public key (unless the visitor already chose their own), so the
-// web client talks to this deployment instead of the public RustDesk servers.
+// ConfigJs serves the web client's bootstrap config: only where the account API is. The ID
+// server, relay and key are handed out after sign-in by /api/server-config-v2 (and to share
+// links by /api/shared-peer), so anonymous visitors get nothing beyond the sign-in page.
 func (i *Index) ConfigJs(c *gin.Context) {
 	apiServer := jsString(global.Config.Rustdesk.ApiServer)
-	idServer := jsString(global.Config.Rustdesk.IdServer)
-	key := jsString(global.Config.Rustdesk.Key)
-	magicQueryonline := global.Config.Rustdesk.WebclientMagicQueryonline
 	tmp := fmt.Sprintf(`localStorage.setItem('api-server', %s);
-const ws2_prefix = 'wc-';
-localStorage.setItem(ws2_prefix+'api-server', %s);
-if (%s && !localStorage.getItem('custom-rendezvous-server')) {
-  localStorage.setItem('custom-rendezvous-server', %s);
-}
-if (%s && !localStorage.getItem('key')) {
-  localStorage.setItem('key', %s);
-}
-
-window.webclient_magic_queryonline = %d;
-window.ws_host = %s;
-`, apiServer, apiServer, idServer, idServer, key, key, magicQueryonline, jsString(global.Config.Rustdesk.WsHost))
+`, apiServer)
 
 	c.Header("Content-Type", "application/javascript")
 	c.String(200, tmp)
