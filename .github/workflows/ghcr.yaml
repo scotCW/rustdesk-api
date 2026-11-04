@@ -15,9 +15,9 @@ permissions:
 
 env:
   IMAGE: ghcr.io/scotcw/rustdesk-api
-  # Admin front-end, pinned for reproducible builds.
-  WEB_REPO: lejianwen/rustdesk-api-web
-  WEB_REF: 3998c2a9213fcd047252776d0f0db33e6717026c
+  # Admin front-end (scotCW fork, branch scotcw/maintenance), pinned for reproducible builds.
+  WEB_REPO: scotCW/rustdesk-api-web
+  WEB_REF: ec2b5813993b2322c80e0acebadd6982a6534191
 
 jobs:
   build:
