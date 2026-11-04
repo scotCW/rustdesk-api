@@ -20,7 +20,7 @@ env:
   WEB_REF: 80817152c78914ef7819a94220d7671d69ccfe90
   # Web client served at /webclient/ (Unlicense), pinned the same way.
   WEBCLIENT_REPO: scotCW/webclient-v3
-  WEBCLIENT_REF: 388a1e740d3335feee0789e07798a5c98d67c975
+  WEBCLIENT_REF: cf3e8a1602c401e8a8e21df2e2e748e9a639115f
 
 jobs:
   build:
