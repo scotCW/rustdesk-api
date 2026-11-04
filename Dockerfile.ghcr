@@ -1,0 +1,32 @@
+# Builds the API image from source: the admin front-end (rustdesk-api-web, checked out into
+# ./rustdesk-api-web by the workflow) and a static CGO build of apimain (SQLite needs CGO).
+# Produces the same /app layout as the upstream release image.
+FROM node:20-alpine AS web
+WORKDIR /web
+COPY rustdesk-api-web/package.json rustdesk-api-web/package-lock.json ./
+RUN npm ci
+COPY rustdesk-api-web/ ./
+RUN npm run build
+
+FROM golang:1.26-alpine AS api
+RUN apk add --no-cache build-base
+WORKDIR /src
+COPY . .
+RUN go mod tidy && \
+    CGO_ENABLED=1 go build -trimpath \
+      -ldflags "-s -w -linkmode external -extldflags -static" \
+      -o /out/apimain ./cmd/apimain.go
+
+FROM alpine:3
+ARG VERSION=dev
+RUN apk add --no-cache tzdata
+WORKDIR /app
+COPY --from=api /out/apimain ./apimain
+COPY resources ./resources
+COPY docs ./docs
+COPY conf ./conf
+COPY --from=web /web/dist ./resources/admin
+RUN mkdir -p data runtime && echo "$VERSION" > resources/version
+VOLUME /app/data
+EXPOSE 21114
+CMD ["./apimain"]
