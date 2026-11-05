@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'scotcw/**'
+      - master
 
 permissions:
   contents: read
@@ -15,7 +15,7 @@ permissions:
 
 env:
   IMAGE: ghcr.io/scotcw/rustdesk-api
-  # Admin front-end (scotCW fork, branch scotcw/maintenance), pinned for reproducible builds.
+  # Admin front-end (scotCW fork), pinned to a commit for reproducible builds.
   WEB_REPO: scotCW/rustdesk-api-web
   WEB_REF: 80817152c78914ef7819a94220d7671d69ccfe90
   # Web client served at /webclient/ (Unlicense), pinned the same way.
